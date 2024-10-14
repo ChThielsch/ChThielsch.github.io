@@ -19,7 +19,7 @@
 
 <!-- Intro -->
 <div id="intro">
-    <img src="images/ProfilepictureRound.png" alt="Profile Picture" style="border-radius: 50%; width: 500px; height: 500px; margin-bottom: 20px;" />
+    <img src="images/ProfilepictureRound.png" alt="Profile Picture" class="profile-picture" />
     <h1>Portfolio<br />
         Christian Thielsch</h1>
     <p>Game Programmer | Crafting Interactive Narratives | Open to work within the European Union and Canada</p>
@@ -28,10 +28,21 @@
     </ul>
 </div>
 
+<style>
+    .profile-picture {
+        border-radius: 50%;
+        width: 50%; /* Scale relative to the container width */
+        height: auto; /* Maintain aspect ratio */
+        max-width: 500px; /* Prevent the image from becoming too large */
+        margin-bottom: 20px;
+    }
+</style>
+
+
 
 		<!-- Header -->
 		<header id="header">
-			<a href="index.html" class="logo">Games Programmer</a>
+			<a href="index.html" class="logo">Game Programmer</a>
 		</header>
 
 		<!-- Nav -->
