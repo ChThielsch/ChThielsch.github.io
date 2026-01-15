@@ -502,7 +502,9 @@
 	<script>
 		const wrapperBg = document.querySelector('#wrapper > .bg');
 
-		const initialBackgroundImage = getComputedStyle(wrapperBg).backgroundImage;
+		const defaultBackground = `url("../../images/overlay.png"),
+		linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1)),
+		url("../../images/bg.jpg")`;
 
 		const articleBackgrounds = [
 			'images/fall_of_porcupine_bg.jpg',
@@ -512,45 +514,45 @@
 		];
 
 		const articles = document.querySelectorAll('#main article.featured');
-		const firstArticle = articles[0];
-
+		const intro = document.querySelector('#intro'); // The intro section
 		let currentBgIndex = -1;
 		const fadeDuration = 1000;
-		let isFading = false;
-
-		function fadeToBackground(backgroundImage) {
-			if (isFading === true) {
-				return;
-			}
-
-			isFading = true;
-			wrapperBg.style.transition = `opacity ${fadeDuration / 1000}s ease-in-out`;
-			wrapperBg.style.opacity = 0;
-
-			setTimeout(() => {
-				wrapperBg.style.backgroundImage = backgroundImage;
-				wrapperBg.style.opacity = 1;
-
-				setTimeout(() => {
-					isFading = false;
-				}, fadeDuration);
-			}, fadeDuration);
-		}
 
 		const observer = new IntersectionObserver(
 			(entries) => {
 				entries.forEach(entry => {
 					if (entry.isIntersecting === true) {
-						const index = Array.from(articles).indexOf(entry.target);
+						// Check if it's the intro
+						if (entry.target === intro) {
+							// Reset to default background
+							if (currentBgIndex !== -2) { // Use -2 to indicate default
+								currentBgIndex = -2;
 
-						if (index !== currentBgIndex) {
-							currentBgIndex = index;
+								wrapperBg.style.transition = `opacity ${fadeDuration / 1000}s ease-in-out`;
+								wrapperBg.style.opacity = 0;
 
-							fadeToBackground(
-								`url("../../images/overlay.png"),
-							 linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1)),
-							 url("${articleBackgrounds[index]}")`
-							);
+								setTimeout(() => {
+									wrapperBg.style.backgroundImage = defaultBackground;
+									wrapperBg.style.opacity = 1;
+								}, fadeDuration);
+							}
+						} else {
+							// It's an article
+							const index = Array.from(articles).indexOf(entry.target);
+							if (index !== currentBgIndex) {
+								currentBgIndex = index;
+
+								wrapperBg.style.transition = `opacity ${fadeDuration / 1000}s ease-in-out`;
+								wrapperBg.style.opacity = 0;
+
+								setTimeout(() => {
+									wrapperBg.style.backgroundImage =
+										`url("../../images/overlay.png"),
+									linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1)),
+									url("${articleBackgrounds[index]}")`;
+									wrapperBg.style.opacity = 1;
+								}, fadeDuration);
+							}
 						}
 					}
 				});
@@ -562,18 +564,15 @@
 			}
 		);
 
+		// Observe articles
 		articles.forEach(article => observer.observe(article));
 
-		// Restore default background only when above the first article
-		window.addEventListener('scroll', () => {
-			const firstArticleTop = firstArticle.getBoundingClientRect().top;
-
-			if (firstArticleTop > window.innerHeight * 0.3 && currentBgIndex !== -1) {
-				currentBgIndex = -1;
-				fadeToBackground(initialBackgroundImage);
-			}
-		});
+		// Observe intro
+		if (intro) {
+			observer.observe(intro);
+		}
 	</script>
+
 
 </body>
 
