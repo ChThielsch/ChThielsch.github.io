@@ -371,7 +371,7 @@
 				<header class="major">
 					<h2>Tortuga</h2>
 				</header>
-				<a class="image fit"><img src="images/default_bg.jpg" alt="Codename: Tortuga Preview" /></a>
+				<a class="image fit"><img src="images/TortugaPreview.jpg" alt="Codename: Tortuga Preview" /></a>
 				<p>Tortuga is about the story of a marine biologist and the journey of a turtle, with a focus
 					on wildlife preservation.</p>
 
@@ -502,6 +502,8 @@
 	<script>
 		const wrapperBg = document.querySelector('#wrapper > .bg');
 
+		const initialBackgroundImage = getComputedStyle(wrapperBg).backgroundImage;
+
 		const articleBackgrounds = [
 			'images/fall_of_porcupine_bg.jpg',
 			'images/esa_shield_bg.jpg',
@@ -510,33 +512,67 @@
 		];
 
 		const articles = document.querySelectorAll('#main article.featured');
+		const firstArticle = articles[0];
+
 		let currentBgIndex = -1;
 		const fadeDuration = 1000;
+		let isFading = false;
 
-		const observer = new IntersectionObserver((entries) => {
-			entries.forEach(entry => {
-				if (entry.isIntersecting) {
-					const index = Array.from(articles).indexOf(entry.target);
-					if (index !== currentBgIndex) {
-						currentBgIndex = index;
+		function fadeToBackground(backgroundImage) {
+			if (isFading === true) {
+				return;
+			}
 
-						// Fade out by reducing opacity
-						wrapperBg.style.transition = `opacity ${fadeDuration / 1000}s ease-in-out`;
-						wrapperBg.style.opacity = 0;
+			isFading = true;
+			wrapperBg.style.transition = `opacity ${fadeDuration / 1000}s ease-in-out`;
+			wrapperBg.style.opacity = 0;
 
-						setTimeout(() => {
-							// Update only the last layer of background-image
-							wrapperBg.style.backgroundImage =
-								`url("../../images/overlay.png"), linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url("${articleBackgrounds[index]}")`;
-							// Fade back in
-							wrapperBg.style.opacity = 1;
-						}, fadeDuration);
+			setTimeout(() => {
+				wrapperBg.style.backgroundImage = backgroundImage;
+				wrapperBg.style.opacity = 1;
+
+				setTimeout(() => {
+					isFading = false;
+				}, fadeDuration);
+			}, fadeDuration);
+		}
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting === true) {
+						const index = Array.from(articles).indexOf(entry.target);
+
+						if (index !== currentBgIndex) {
+							currentBgIndex = index;
+
+							fadeToBackground(
+								`url("../../images/overlay.png"),
+							 linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1)),
+							 url("${articleBackgrounds[index]}")`
+							);
+						}
 					}
-				}
-			});
-		}, { threshold: 0.5 });
+				});
+			},
+			{
+				root: null,
+				threshold: 0,
+				rootMargin: '-30% 0px -30% 0px'
+			}
+		);
 
 		articles.forEach(article => observer.observe(article));
+
+		// Restore default background only when above the first article
+		window.addEventListener('scroll', () => {
+			const firstArticleTop = firstArticle.getBoundingClientRect().top;
+
+			if (firstArticleTop > window.innerHeight * 0.3 && currentBgIndex !== -1) {
+				currentBgIndex = -1;
+				fadeToBackground(initialBackgroundImage);
+			}
+		});
 	</script>
 
 </body>
