@@ -3403,7 +3403,7 @@ table.alt tbody tr td {
 	-webkit-transition-delay: 0.75s;
 	-ms-transition-delay: 0.75s;
 	transition-delay: 0.75s;
-	background: #1e252d;
+	background: var(--fade-color, #1e252d);
 	content: '';
 	display: block;
 	height: 100%;
